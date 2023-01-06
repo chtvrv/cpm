@@ -1,0 +1,11 @@
+name, duration, prev
+W0, 15, -
+W1, 9, -
+W2, 12, -
+W3, 11, W0 W1
+W4, 17, W0 W1
+W5, 6, W0
+W6, 16, W3 W4 W5
+W7, 16, W4 W5 W2
+W8, 10, W6 W7
+W9, 5, W7
