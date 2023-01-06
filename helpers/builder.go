@@ -1,17 +1,13 @@
-package builder
+package helpers
 
 import (
 	"cpm/models"
 )
 
-type BuilderImpl struct{}
+type Builder struct{}
 
-func CreateBuilder() Builder {
-	return &BuilderImpl{}
-}
-
-func (impl *BuilderImpl) BuildAdjacencyMatrix(works *[]models.WorkInfo) (matrix *models.AdjMatrix, inputs []int, outputs []int) {
-	dimension := len(*works)*2 + 2
+func (builder *Builder) BuildAdjacencyMatrix(works []models.WorkInfo) (matrix *models.AdjMatrix) {
+	dimension := len(works)*2 + 2
 	data := make([][]int, dimension)
 	for i := range data {
 		row := make([]int, dimension)
@@ -22,11 +18,10 @@ func (impl *BuilderImpl) BuildAdjacencyMatrix(works *[]models.WorkInfo) (matrix 
 	}
 
 	memo := map[string]int{}
-	for id, work := range *works {
+	for id, work := range works {
 		memo[work.Name] = id
 		data[id*2+1][id*2+2] = work.Duration
 		if !work.HasSubworks() {
-			inputs = append(inputs, id*2+1)
 			data[0][id*2+1] = 0
 		} else {
 			for _, subwork := range work.Subworks {
@@ -37,9 +32,8 @@ func (impl *BuilderImpl) BuildAdjacencyMatrix(works *[]models.WorkInfo) (matrix 
 		}
 	}
 
-	for i := 0; i < len(*works); i++ {
-		if IsOutput(data[i*2+2]) {
-			outputs = append(outputs, i*2+2)
+	for i := 0; i < len(works); i++ {
+		if isOutput(data[i*2+2]) {
 			data[i*2+2][dimension-1] = 0
 		}
 	}
@@ -48,7 +42,7 @@ func (impl *BuilderImpl) BuildAdjacencyMatrix(works *[]models.WorkInfo) (matrix 
 	return
 }
 
-func IsOutput(row []int) bool {
+func isOutput(row []int) bool {
 	for i := range row {
 		if row[i] != -1 {
 			return false
