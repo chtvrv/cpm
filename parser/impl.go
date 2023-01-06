@@ -17,7 +17,7 @@ func CreateParser() Parser {
 }
 
 func (impl *ParserImpl) Parse(filepath string) *[]models.WorkInfo {
-	file, err := os.Open("input.csv")
+	file, err := os.Open(filepath)
 	if err != nil {
 		log.Fatal(err)
 	}
