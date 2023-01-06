@@ -1,4 +1,4 @@
-package parser
+package helpers
 
 import (
 	"cpm/models"
@@ -10,13 +10,9 @@ import (
 	"strings"
 )
 
-type ParserImpl struct{}
+type Parser struct{}
 
-func CreateParser() Parser {
-	return &ParserImpl{}
-}
-
-func (impl *ParserImpl) Parse(filepath string) *[]models.WorkInfo {
+func (parser *Parser) ParseInput(filepath string) []models.WorkInfo {
 	file, err := os.Open(filepath)
 	if err != nil {
 		log.Fatal(err)
@@ -51,5 +47,5 @@ func (impl *ParserImpl) Parse(filepath string) *[]models.WorkInfo {
 		subworks := strings.Fields(records[i][2])
 		works = append(works, models.WorkInfo{Name: name, Duration: duration, Subworks: subworks})
 	}
-	return &works
+	return works
 }
