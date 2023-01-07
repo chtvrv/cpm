@@ -2,7 +2,7 @@ package helpers
 
 type Runner struct{}
 
-func (runner *Runner) Run(inputFile string, outputFile string) error {
+func (runner *Runner) Run(inputFile string, outputFile string, criticalPath string) error {
 	parser := Parser{}
 	builder := Builder{}
 	explorer := Explorer{}
@@ -10,6 +10,6 @@ func (runner *Runner) Run(inputFile string, outputFile string) error {
 
 	works := parser.ParseInput(inputFile)
 	adjMatrix := builder.BuildAdjacencyMatrix(works)
-	forward, reversed := explorer.TraverseGraph(adjMatrix)
-	return writer.WriteResults(outputFile, works, forward, reversed)
+	results := explorer.TraverseGraph(works, adjMatrix)
+	return writer.WriteResults(results, outputFile, criticalPath)
 }

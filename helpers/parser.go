@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"cpm/models"
+	"cpm/utils"
 	"encoding/csv"
 	"io"
 	"log"
@@ -17,7 +18,7 @@ func (parser *Parser) ParseInput(filepath string) []models.WorkInfo {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer utils.Close(file.Close)
 
 	reader := csv.NewReader(file)
 	reader.Comma = ','

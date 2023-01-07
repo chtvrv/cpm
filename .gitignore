@@ -18,3 +18,4 @@ bin
 # vendor/
 
 output.csv
+crit_path.csv
