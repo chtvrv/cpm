@@ -4,7 +4,7 @@ import "cpm/models"
 
 type Explorer struct{}
 
-func (explorer *Explorer) TraverseGraph(graph *models.AdjMatrix) ([]int, []int) {
+func (explorer *Explorer) TraverseGraph(works []models.WorkInfo, graph *models.AdjMatrix) []models.Result {
 	forward := make([]int, graph.RowsCount)
 	forward[0] = 0
 
@@ -31,5 +31,19 @@ func (explorer *Explorer) TraverseGraph(graph *models.AdjMatrix) ([]int, []int) 
 
 	forward = forward[1 : len(forward)-1]
 	reversed = reversed[1 : len(reversed)-1]
-	return forward, reversed
+
+	var results []models.Result
+	for i := 0; i < len(works); i++ {
+		results = append(results, models.Result{
+			WorkName:    works[i].Name,
+			Duration:    works[i].Duration,
+			EarlyStart:  forward[2*i],
+			LateStart:   reversed[2*i],
+			EarlyFinish: forward[2*i+1],
+			LateFinish:  reversed[2*i+1],
+			TimeMargin:  reversed[2*i] - forward[2*i],
+		})
+	}
+
+	return results
 }

@@ -2,8 +2,8 @@ package helpers
 
 import (
 	"cpm/models"
+	"cpm/utils"
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -11,44 +11,63 @@ import (
 
 type Writer struct{}
 
-func (writer *Writer) WriteResults(filepath string, works []models.WorkInfo, forward []int, reversed []int) error {
-	var results []models.Result
-	for i := 0; i < len(works); i++ {
-		results = append(results, models.Result{
-			WorkName:    works[i].Name,
-			Duration:    works[i].Duration,
-			EarlyStart:  forward[2*i],
-			LateStart:   reversed[2*i],
-			EarlyFinish: forward[2*i+1],
-			LateFinish:  reversed[2*i+1],
-			TimeMargin:  reversed[2*i] - forward[2*i],
-		})
+func (writer *Writer) WriteResults(results []models.Result, outputDataFilepath string, criticalPathFilepath string) error {
+	records := writer.makeRecords(results, func(result models.Result) []string {
+		return []string{
+			result.WorkName,
+			strconv.Itoa(result.Duration),
+			strconv.Itoa(result.EarlyStart),
+			strconv.Itoa(result.LateStart),
+			strconv.Itoa(result.EarlyFinish),
+			strconv.Itoa(result.LateFinish),
+			strconv.Itoa(result.TimeMargin),
+		}
+	})
+	err := writer.writeCSVRecords(outputDataFilepath, records)
+	if err != nil {
+		log.Fatal(err)
 	}
 
+	var criticalPathResults []models.Result
+	for i := range results {
+		if results[i].EarlyStart == results[i].LateStart {
+			criticalPathResults = append(criticalPathResults, results[i])
+		}
+	}
+	records = writer.makeRecords(criticalPathResults, func(result models.Result) []string {
+		return []string{
+			result.WorkName,
+			strconv.Itoa(result.Duration),
+			strconv.Itoa(result.EarlyStart),
+			strconv.Itoa(result.EarlyFinish),
+		}
+	})
+	err = writer.writeCSVRecords(criticalPathFilepath, records)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
+}
+
+func (writer *Writer) makeRecords(results []models.Result, transform func(models.Result) []string) [][]string {
+	var records [][]string
+	for i := range results {
+		records = append(records, transform(results[i]))
+	}
+	return records
+}
+
+func (writer *Writer) writeCSVRecords(filepath string, records [][]string) error {
 	file, err := os.Create(filepath)
-	defer file.Close()
+	defer utils.Close(file.Close)
 	if err != nil {
 		log.Fatal("failed to open file", err)
-		return err
 	}
-
 	csvWriter := csv.NewWriter(file)
-	for i := range results {
-		record := []string{
-			results[i].WorkName,
-			strconv.Itoa(results[i].Duration),
-			strconv.Itoa(results[i].EarlyStart),
-			strconv.Itoa(results[i].LateStart),
-			strconv.Itoa(results[i].EarlyFinish),
-			strconv.Itoa(results[i].LateFinish),
-			strconv.Itoa(results[i].TimeMargin),
-		}
-		fmt.Println(record)
-		err := csvWriter.Write(record)
-		if err != nil {
-			log.Fatal(err)
-		}
+	err = csvWriter.WriteAll(records)
+	if err != nil {
+		log.Fatal("failed to write records", err)
 	}
-	csvWriter.Flush()
 	return nil
 }
