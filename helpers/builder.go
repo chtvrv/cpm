@@ -2,11 +2,12 @@ package helpers
 
 import (
 	"cpm/models"
+	ps "github.com/inancgumus/prettyslice"
 )
 
 type Builder struct{}
 
-func (builder *Builder) BuildAdjacencyMatrix(works []models.WorkInfo) (matrix *models.AdjMatrix) {
+func (builder *Builder) BuildAdjacencyMatrix(works []models.WorkInfo, shouldPrint bool) (matrix *models.AdjMatrix) {
 	dimension := len(works)*2 + 2
 	data := make([][]int, dimension)
 	for i := range data {
@@ -37,7 +38,11 @@ func (builder *Builder) BuildAdjacencyMatrix(works []models.WorkInfo) (matrix *m
 			data[i*2+2][dimension-1] = 0
 		}
 	}
-
+	ps.MaxPerLine = 30
+	ps.PrintHex = true
+	for i := range data {
+		ps.Show("row", data[i])
+	}
 	matrix = &models.AdjMatrix{Data: data, RowsCount: dimension, ColumnsCount: dimension}
 	return
 }

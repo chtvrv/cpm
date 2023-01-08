@@ -23,7 +23,8 @@ func (writer *Writer) WriteResults(results []models.Result, outputDataFilepath s
 			strconv.Itoa(result.TimeMargin),
 		}
 	})
-	err := writer.writeCSVRecords(outputDataFilepath, records)
+	columns := []string{"stage", "duration", "early_start", "late_start", "early_finish", "late_finish", "time_margin"}
+	err := writer.writeCSVRecords(outputDataFilepath, columns, records)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +43,8 @@ func (writer *Writer) WriteResults(results []models.Result, outputDataFilepath s
 			strconv.Itoa(result.EarlyFinish),
 		}
 	})
-	err = writer.writeCSVRecords(criticalPathFilepath, records)
+	columns = []string{"stage", "duration", "early_start", "early_finish"}
+	err = writer.writeCSVRecords(criticalPathFilepath, columns, records)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,13 +60,19 @@ func (writer *Writer) makeRecords(results []models.Result, transform func(models
 	return records
 }
 
-func (writer *Writer) writeCSVRecords(filepath string, records [][]string) error {
+func (writer *Writer) writeCSVRecords(filepath string, columns []string, records [][]string) error {
 	file, err := os.Create(filepath)
 	defer utils.Close(file.Close)
 	if err != nil {
 		log.Fatal("failed to open file", err)
 	}
 	csvWriter := csv.NewWriter(file)
+	csvWriter.Comma = '|'
+	err = csvWriter.Write(columns)
+	if err != nil {
+		log.Fatal("failed to write records", err)
+	}
+	csvWriter.Flush()
 	err = csvWriter.WriteAll(records)
 	if err != nil {
 		log.Fatal("failed to write records", err)
