@@ -21,9 +21,9 @@ func (parser *Parser) ParseInput(filepath string) []models.WorkInfo {
 	defer utils.Close(file.Close)
 
 	reader := csv.NewReader(file)
-	reader.Comma = ','
+	reader.Comma = '|'
 	reader.FieldsPerRecord = 3
-	reader.TrimLeadingSpace = true
+	reader.TrimLeadingSpace = false
 	var works []models.WorkInfo
 	var records [][]string
 	for {
@@ -45,7 +45,7 @@ func (parser *Parser) ParseInput(filepath string) []models.WorkInfo {
 		if err != nil {
 			log.Fatal(err)
 		}
-		subworks := strings.Fields(records[i][2])
+		subworks := strings.Fields(strings.Trim(records[i][2], "[]"))
 		works = append(works, models.WorkInfo{Name: name, Duration: duration, Subworks: subworks})
 	}
 	return works

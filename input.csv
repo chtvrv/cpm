@@ -1,11 +1,11 @@
-name, duration, prev
-W0, 15, -
-W1, 9, -
-W2, 12, -
-W3, 11, W0 W1
-W4, 17, W0 W1
-W5, 6, W0
-W6, 16, W3 W4 W5
-W7, 16, W4 W5 W2
-W8, 10, W6 W7
-W9, 5, W7
+stage|duration|requirements
+S0|15|[-]
+S1|9|[-]
+S2|12|[-]
+S3|11|[S0 S1]
+S4|17|[S0 S1]
+S5|6|[S0]
+S6|16|[S3 S4 S5]
+S7|16|[S4 S5 S2]
+S8|10|[S6 S7]
+S9|5|[S7]
